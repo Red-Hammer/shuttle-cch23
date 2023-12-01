@@ -15,7 +15,13 @@ async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
     let packets: Vec<u32> = tail.split('/').filter_map(|s| s.parse().ok()).collect();
 
     let mut packet_xor: u32 = packets[0];
-    for packet in &packets[1..] {
+
+    let vec_slice = &packets[1..];
+
+    for (idx,packet) in vec_slice.iter().enumerate() {
+        if idx >= 20 {
+            break
+        }
         packet_xor ^= packet;
     }
 
