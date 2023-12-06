@@ -1,9 +1,11 @@
+use std::fmt::format;
 use std::fs::rename;
 use axum::{
     routing::get, routing::post,
     Router,
     extract::Path, Json,
 };
+use axum::extract::State;
 
 use serde::{
     Deserialize,
@@ -44,6 +46,18 @@ impl Competition {
 
     fn set_fastest(&mut self, str: u32, name:&String) -> () {
         self.fastest = format!("Speeding past the finish line with a strength of {} is {}", str, name);
+    }
+
+    fn set_tallest(&mut self, name: &String, antler_size:u32) -> () {
+        self.tallest = format!("{} is standing tall with his {} cm wide antlers", name, antler_size);
+    }
+
+    fn set_magician(&mut self, name: &String, magic_power: u32) -> () {
+        self.magician = format!("{} could blast you away with a snow magic power of {}", name, magic_power);
+    }
+
+    fn set_consumer(&mut self, name: &String, fave_food: &String) -> () {
+        self.consumer = format!("{} ate lots of candies, but also some {}", name, fave_food)
     }
 }
 
@@ -90,6 +104,9 @@ async fn reindeer_contest(Json(data): Json<Vec<Reindeer>>) -> Json<Competition> 
     let mut winners = Competition::new();
 
     winners.set_fastest(data[fastest].strength, &data[fastest].name);
+    winners.set_tallest(&data[tallest].name, data[tallest].antler_width);
+    winners.set_magician(&data[magician].name, data[magician].snow_magic_power);
+    winners.set_consumer(&data[consumer].name, &data[consumer].favorite_food);
 
     Json(winners)
 }
