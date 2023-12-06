@@ -1,13 +1,29 @@
 use axum::{
-    routing::get, Router,
-    extract::Path,
+    routing::get, routing::post,
+    Router,
+    extract::Path, Json,
 };
 
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+struct Reindeer {
+    name: String,
+    strength: u32,
+}
+
+
+#[derive(Deserialize)]
 struct TailPath {
     tail: String,
+}
+
+async fn determine_reindeer_strength(Json(data): Json<Vec<Reindeer>>) -> String {
+    let mut str: u32 = 0;
+    for reindeer in data {
+        str += reindeer.strength;
+    }
+    format!("{}", str)
 }
 
 async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
@@ -35,6 +51,7 @@ async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
 async fn main() -> shuttle_axum::ShuttleAxum {
     let router = Router::new()
         .route("/1/*tail", get(packet_recal))
+        .route("/4/strength", post(determine_reindeer_strength))
         ;
 
     Ok(router.into())
