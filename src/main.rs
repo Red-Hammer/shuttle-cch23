@@ -1,15 +1,14 @@
-use std::fmt::format;
 use std::fs::rename;
 use axum::{
     routing::get, routing::post,
     Router,
     extract::Path, Json,
 };
-use axum::extract::State;
+
 
 use serde::{
     Deserialize,
-    Serialize
+    Serialize,
 };
 
 
@@ -23,7 +22,7 @@ struct Reindeer {
     snow_magic_power: u32,
     favorite_food: String,
     #[serde(rename = "cAnD13s_3ATeN-yesT3rdAy")]
-    candies_eaten_yesterday: u32
+    candies_eaten_yesterday: u32,
 }
 
 #[derive(Serialize)]
@@ -41,14 +40,14 @@ impl Competition {
         let mut magician = String::new();
         let mut consumer = String::new();
 
-        Competition{fastest:fastest, tallest:tallest, magician:magician, consumer: consumer}
+        Competition { fastest: fastest, tallest: tallest, magician: magician, consumer: consumer }
     }
 
-    fn set_fastest(&mut self, str: u32, name:&String) -> () {
+    fn set_fastest(&mut self, str: u32, name: &String) -> () {
         self.fastest = format!("Speeding past the finish line with a strength of {} is {}", str, name);
     }
 
-    fn set_tallest(&mut self, name: &String, antler_size:u32) -> () {
+    fn set_tallest(&mut self, name: &String, antler_size: u32) -> () {
         self.tallest = format!("{} is standing tall with his {} cm wide antlers", name, antler_size);
     }
 
@@ -86,13 +85,11 @@ async fn reindeer_contest(Json(data): Json<Vec<Reindeer>>) -> Json<Competition> 
         if reindeer.height > tallest_height {
             tallest = idx;
             tallest_height = reindeer.height;
-
         }
 
         if reindeer.snow_magic_power > most_magic {
             magician = idx;
             most_magic = reindeer.snow_magic_power;
-
         }
 
         if reindeer.candies_eaten_yesterday > most_candies_eaten {
@@ -120,16 +117,15 @@ async fn determine_reindeer_strength(Json(data): Json<Vec<Reindeer>>) -> String 
 }
 
 async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
-
     let packets: Vec<u32> = tail.split('/').filter_map(|s| s.parse().ok()).collect();
 
     let mut packet_xor: u32 = packets[0];
 
     let vec_slice = &packets[1..];
 
-    for (idx,packet) in vec_slice.iter().enumerate() {
+    for (idx, packet) in vec_slice.iter().enumerate() {
         if idx >= 20 {
-            break
+            break;
         }
         packet_xor ^= packet;
     }
