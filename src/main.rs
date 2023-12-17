@@ -40,7 +40,7 @@ impl Competition {
         let mut magician = String::new();
         let mut consumer = String::new();
 
-        Competition { fastest: fastest, tallest: tallest, magician: magician, consumer: consumer }
+        Competition { fastest, tallest, magician, consumer }
     }
 
     fn set_fastest(&mut self, str: u32, name: &String) -> () {
@@ -65,6 +65,8 @@ impl Competition {
 struct TailPath {
     tail: String,
 }
+
+
 
 async fn reindeer_contest(Json(data): Json<Vec<Reindeer>>) -> Json<Competition> {
     let mut fastest = 0;
@@ -135,6 +137,33 @@ async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
     format!("{}", powed_xor)
 }
 
+#[derive(Serialize)]
+struct ElfCount {
+    elf: usize,
+
+}
+
+impl ElfCount {
+    fn new() -> ElfCount {
+        let mut elf: usize = 0;
+
+        ElfCount{ elf }
+    }
+
+    fn set_elf(&mut self, num_elf:usize) -> () {
+        self.elf = num_elf;
+    }
+}
+async fn elf_count(raw_string:String) -> Json<ElfCount> {
+    let substring = "elf";
+    let num_elf = raw_string.matches(substring).count();
+
+    let mut elfs = ElfCount::new();
+    elfs.set_elf(num_elf);
+
+    Json(elfs)
+
+}
 
 #[shuttle_runtime::main]
 async fn main() -> shuttle_axum::ShuttleAxum {
@@ -142,6 +171,7 @@ async fn main() -> shuttle_axum::ShuttleAxum {
         .route("/1/*tail", get(packet_recal))
         .route("/4/strength", post(determine_reindeer_strength))
         .route("/4/contest", post(reindeer_contest))
+        .route("/6", post(elf_count))
         ;
 
     Ok(router.into())
