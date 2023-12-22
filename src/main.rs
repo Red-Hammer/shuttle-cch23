@@ -11,6 +11,8 @@ use serde::{
     Serialize,
 };
 
+use regex::Regex;
+
 
 #[derive(Deserialize)]
 struct Reindeer {
@@ -140,26 +142,52 @@ async fn packet_recal(Path(TailPath { tail }): Path<TailPath>) -> String {
 #[derive(Serialize)]
 struct ElfCount {
     elf: usize,
+    #[serde(rename = "elf on a shelf")]
+    elf_on_a_shelf: usize,
+    #[serde(rename = "shelf with no elf on it")]
+    shelf_no_elf: usize
 
 }
 
 impl ElfCount {
     fn new() -> ElfCount {
         let mut elf: usize = 0;
+        let mut elf_on_a_shelf: usize = 0;
+        let mut shelf_no_elf: usize = 0;
 
-        ElfCount{ elf }
+        ElfCount{ elf, elf_on_a_shelf, shelf_no_elf}
     }
 
     fn set_elf(&mut self, num_elf:usize) -> () {
         self.elf = num_elf;
+    }
+
+    fn set_on_shelf(&mut self, num_elf_shelf:usize) -> () {
+        self.elf_on_a_shelf = num_elf_shelf;
+    }
+
+    fn set_shelf_no_elf(&mut self, num_no_shelf:usize) -> () {
+        self.shelf_no_elf = num_no_shelf;
     }
 }
 async fn elf_count(raw_string:String) -> Json<ElfCount> {
     let substring = "elf";
     let num_elf = raw_string.matches(substring).count();
 
+    let substring_2 = "elf on a shelf";
+    let num_elf_shelf = raw_string.matches(substring_2).count();
+
+    // let pattern_elf = Regex::new(r"(?!elf on a )shelf").unwrap();
+    // let shelf_sub_matches: Vec<_> = pattern_elf.find_iter(&raw_string).collect();
+
+    // let num_shelf_no_elf = shelf_sub_matches.len();
+
+
+
     let mut elfs = ElfCount::new();
     elfs.set_elf(num_elf);
+    elfs.set_on_shelf(num_elf_shelf);
+    // elfs.set_shelf_no_elf(num_shelf_no_elf);
 
     Json(elfs)
 
